@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ship by Sunday</title>
-  <meta name="description" content="Ship by Sunday — join the waitlist." />
+  <meta name="description" content="Ship by Sunday — pick the admin tax, join the waitlist." />
   <style>
-    :root { color-scheme: light dark; --fg: #111; --muted: #555; --bg: #fafafa; --card: #fff; --accent: #0b57d0; --border: #e5e5e5; }
+    :root { color-scheme: light dark; --fg: #111; --muted: #555; --bg: #fafafa; --card: #fff; --accent: #0b57d0; --border: #e5e5e5; --chip: #f0f4ff; }
     @media (prefers-color-scheme: dark) {
-      :root { --fg: #f2f2f2; --muted: #a8a8a8; --bg: #0d0d0d; --card: #161616; --accent: #8ab4f8; --border: #2a2a2a; }
+      :root { --fg: #f2f2f2; --muted: #a8a8a8; --bg: #0d0d0d; --card: #161616; --accent: #8ab4f8; --border: #2a2a2a; --chip: #1a2333; }
     }
     * { box-sizing: border-box; }
     body {
@@ -22,20 +22,66 @@
     }
     h1 { margin: 0 0 .5rem; font-size: 1.75rem; letter-spacing: -0.02em; }
     p { margin: 0 0 1.25rem; color: var(--muted); line-height: 1.5; }
+    .choices { display: grid; gap: .6rem; margin: 0 0 1.25rem; }
+    button.choice {
+      text-align: left; cursor: pointer; font: inherit; color: var(--fg);
+      background: var(--chip); border: 1px solid var(--border); border-radius: .6rem;
+      padding: .85rem 1rem; font-weight: 600;
+    }
+    button.choice:hover, button.choice[aria-pressed="true"] {
+      border-color: var(--accent); outline: 1px solid var(--accent);
+    }
+    button.choice:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     a.cta {
       display: inline-block; background: var(--accent); color: #fff; text-decoration: none;
       font-weight: 600; padding: .75rem 1.1rem; border-radius: .6rem;
     }
     a.cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    a.cta[aria-disabled="true"] { opacity: .45; pointer-events: none; }
     .note { margin-top: 1.25rem; font-size: .875rem; color: var(--muted); }
+    .picked { min-height: 1.25rem; margin: 0 0 1rem; font-size: .95rem; color: var(--fg); }
+    .picked:empty { display: none; }
   </style>
 </head>
 <body>
   <main>
     <h1>Ship by Sunday</h1>
-    <p>Placeholder lander. Product code stays frozen until burn opens. Join the waitlist — free, no account required beyond GitHub.</p>
-    <a class="cta" href="https://github.com/JamesTRichmond/ship-by-sunday/issues/new?template=waitlist.yml">Join the waitlist</a>
-    <p class="note">Waitlist opens a GitHub issue on this repo.</p>
+    <p>What’s eating the week? Pick one admin tax — then join the waitlist. Free; GitHub account for the issue form.</p>
+
+    <div class="choices" role="group" aria-label="Admin tax">
+      <button type="button" class="choice" data-pain="Chasing invoices" aria-pressed="false">Chasing invoices</button>
+      <button type="button" class="choice" data-pain="Follow-ups" aria-pressed="false">Follow-ups</button>
+      <button type="button" class="choice" data-pain="CRM janitoring" aria-pressed="false">CRM janitoring</button>
+    </div>
+
+    <p class="picked" id="picked" aria-live="polite"></p>
+
+    <a class="cta" id="waitlist" href="https://github.com/JamesTRichmond/ship-by-sunday/issues/new?template=waitlist.yml" aria-disabled="true">Join the waitlist</a>
+    <p class="note">One path: pick → waitlist issue. No product lock — signal only.</p>
   </main>
+  <script>
+    (function () {
+      var base = "https://github.com/JamesTRichmond/ship-by-sunday/issues/new?template=waitlist.yml";
+      var buttons = document.querySelectorAll("button.choice");
+      var cta = document.getElementById("waitlist");
+      var picked = document.getElementById("picked");
+
+      function select(pain) {
+        buttons.forEach(function (b) {
+          var on = b.getAttribute("data-pain") === pain;
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        picked.textContent = "Selected: " + pain;
+        cta.href = base + "&title=" + encodeURIComponent("Waitlist: " + pain);
+        cta.removeAttribute("aria-disabled");
+      }
+
+      buttons.forEach(function (b) {
+        b.addEventListener("click", function () {
+          select(b.getAttribute("data-pain"));
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
