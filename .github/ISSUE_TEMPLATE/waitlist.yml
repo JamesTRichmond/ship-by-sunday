@@ -1,0 +1,27 @@
+name: Waitlist
+description: Join the Ship by Sunday waitlist
+title: "Waitlist: "
+labels: ["waitlist"]
+body:
+  - type: input
+    id: email
+    attributes:
+      label: Email (optional)
+      description: How we can reach you when burn opens.
+      placeholder: you@example.com
+    validations:
+      required: false
+  - type: input
+    id: handle
+    attributes:
+      label: Name or handle
+      placeholder: Your name
+    validations:
+      required: true
+  - type: textarea
+    id: note
+    attributes:
+      label: What do you want to ship?
+      description: One sentence is enough.
+    validations:
+      required: false
