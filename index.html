@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ship by Sunday</title>
-  <meta name="description" content="Ship by Sunday — pick the admin tax, join the waitlist." />
+  <meta name="description" content="Ship by Sunday — pick the admin tax, get one tip, join the waitlist." />
   <style>
-    :root { color-scheme: light dark; --fg: #111; --muted: #555; --bg: #fafafa; --card: #fff; --accent: #0b57d0; --border: #e5e5e5; --chip: #f0f4ff; }
+    :root { color-scheme: light dark; --fg: #111; --muted: #555; --bg: #fafafa; --card: #fff; --accent: #0b57d0; --border: #e5e5e5; --chip: #f0f4ff; --tip: #f7f9fc; }
     @media (prefers-color-scheme: dark) {
-      :root { --fg: #f2f2f2; --muted: #a8a8a8; --bg: #0d0d0d; --card: #161616; --accent: #8ab4f8; --border: #2a2a2a; --chip: #1a2333; }
+      :root { --fg: #f2f2f2; --muted: #a8a8a8; --bg: #0d0d0d; --card: #161616; --accent: #8ab4f8; --border: #2a2a2a; --chip: #1a2333; --tip: #121820; }
     }
     * { box-sizing: border-box; }
     body {
@@ -32,6 +32,13 @@
       border-color: var(--accent); outline: 1px solid var(--accent);
     }
     button.choice:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    #tip {
+      display: none; margin: 0 0 1.25rem; padding: 1rem 1.1rem;
+      background: var(--tip); border: 1px solid var(--border); border-radius: .75rem;
+    }
+    #tip[data-open="true"] { display: block; }
+    #tip strong { display: block; margin: 0 0 .35rem; color: var(--fg); font-size: .95rem; }
+    #tip p { margin: 0; color: var(--muted); font-size: .95rem; }
     a.cta {
       display: inline-block; background: var(--accent); color: #fff; text-decoration: none;
       font-weight: 600; padding: .75rem 1.1rem; border-radius: .6rem;
@@ -46,7 +53,7 @@
 <body>
   <main>
     <h1>Ship by Sunday</h1>
-    <p>What’s eating the week? Pick one admin tax — then join the waitlist. Free; GitHub account for the issue form.</p>
+    <p>What’s eating the week? Pick one admin tax — get one tip you can use today — then join the waitlist.</p>
 
     <div class="choices" role="group" aria-label="Admin tax">
       <button type="button" class="choice" data-pain="Chasing invoices" aria-pressed="false">Chasing invoices</button>
@@ -56,15 +63,28 @@
 
     <p class="picked" id="picked" aria-live="polite"></p>
 
+    <div id="tip" data-open="false" aria-live="polite">
+      <strong id="tip-label"></strong>
+      <p id="tip-body"></p>
+    </div>
+
     <a class="cta" id="waitlist" href="https://github.com/JamesTRichmond/ship-by-sunday/issues/new?template=waitlist.yml" aria-disabled="true">Join the waitlist</a>
-    <p class="note">One path: pick → waitlist issue. No product lock — signal only.</p>
+    <p class="note">Path: pick → tip → waitlist. No product lock — signal only.</p>
   </main>
   <script>
     (function () {
       var base = "https://github.com/JamesTRichmond/ship-by-sunday/issues/new?template=waitlist.yml";
+      var tips = {
+        "Chasing invoices": "Today: list every open invoice older than 7 days. Send one polite chase to the oldest before you open Slack.",
+        "Follow-ups": "Today: pick three threads you said you’d reply to. Send the shortest honest next line on each — no essay.",
+        "CRM janitoring": "Today: delete or archive 10 stale contacts you will never email. Then tag the 5 you actually owe a reply."
+      };
       var buttons = document.querySelectorAll("button.choice");
       var cta = document.getElementById("waitlist");
       var picked = document.getElementById("picked");
+      var tip = document.getElementById("tip");
+      var tipLabel = document.getElementById("tip-label");
+      var tipBody = document.getElementById("tip-body");
 
       function select(pain) {
         buttons.forEach(function (b) {
@@ -72,6 +92,9 @@
           b.setAttribute("aria-pressed", on ? "true" : "false");
         });
         picked.textContent = "Selected: " + pain;
+        tipLabel.textContent = "Today tip — " + pain;
+        tipBody.textContent = tips[pain] || "";
+        tip.setAttribute("data-open", "true");
         cta.href = base + "&title=" + encodeURIComponent("Waitlist: " + pain);
         cta.removeAttribute("aria-disabled");
       }
